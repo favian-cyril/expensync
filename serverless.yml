@@ -9,7 +9,8 @@ provider:
 
 useDotenv: true
 functions:
-  function1:
+  create_invoice_from_email:
     handler: index.handler
+    timeout: 9
     events: 
       - sns: arn:aws:sns:us-east-1:950168815049:forwarded-invoice

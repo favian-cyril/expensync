@@ -1,0 +1,15 @@
+org: favamr
+app: expensync
+service: expensync
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+useDotenv: true
+functions:
+  function1:
+    handler: index.handler
+    events: 
+      - sns: arn:aws:sns:us-east-1:950168815049:forwarded-invoice

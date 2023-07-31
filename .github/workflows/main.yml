@@ -29,7 +29,7 @@ jobs:
 
       - name: Package Lambda Function
         run: |
-          zip -r create_invoice_from_email.zip expensync/*  # Adjust the path to your Lambda function code
+          zip -r create_invoice_from_email.zip .  # Adjust the path to your Lambda function code
         # If you have dependencies in a subdirectory, you can include them like this:
         # zip -r lambda_function.zip your_lambda_function_code/* your_dependency_directory/*
 

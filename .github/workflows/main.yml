@@ -40,4 +40,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           LAMBDA_FUNCTION_NAME: create_invoice_from_email  # Replace with your Lambda function name
         run: |
-          aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda_function.zip --region $AWS_REGION
+          aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://create_invoice_from_email.zip --region $AWS_REGION

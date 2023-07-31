@@ -1,0 +1,43 @@
+name: Deploy to Lambda
+
+on:
+  push:
+    branches:
+      - main  # Change this to the branch you want to trigger the deployment from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install  # Replace with your package manager command if you use something else
+
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
+      - name: Package Lambda Function
+        run: |
+          zip -r create_invoice_from_email.zip expensync/*  # Adjust the path to your Lambda function code
+        # If you have dependencies in a subdirectory, you can include them like this:
+        # zip -r lambda_function.zip your_lambda_function_code/* your_dependency_directory/*
+
+      - name: Deploy to Lambda
+        env:
+          AWS_REGION: us-east-1  # Replace with your AWS region
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          LAMBDA_FUNCTION_NAME: create_invoice_from_email  # Replace with your Lambda function name
+        run: |
+          aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda_function.zip --region $AWS_REGION

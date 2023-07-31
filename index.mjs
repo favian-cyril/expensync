@@ -45,7 +45,7 @@ export const handler = async (event) => {
         if (userData.length === 1 && senderData.length === 1) {
             const { data: categories } = await supabase.from('Category').select('id, value').eq('user_id', userData[0].id);
             let invoice;
-            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date);
+            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, userData[0].currency);
             // Fallback function
             if (invoice === null) {
               invoice = manualParseEmail(htmlText, userData[0].currency, messageId, date)

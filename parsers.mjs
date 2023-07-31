@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
 import { getDecimalValue, findAllMoneyValues, findHighestCount } from './utils.mjs';
 
-export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated) {
+export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated, currency) {
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -16,7 +16,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       messages: [
         {
           "role": "system",
-          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only: Total,Currency,Category,Summary. For Category choose from these categories: ${categoryString}. If category is not available use null instead. If the email doesn't seem to be a receipt reply with null instead`
+          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only: Total|Currency Code|Category|Summary. For Category choose from these categories: ${categoryString}. If category is not available use null instead. If the email doesn't seem to be a receipt reply with null instead`
         },
       {
         role: "user",
@@ -29,7 +29,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         console.error('Not a receipt');
         return null;
       }
-      const [amountStr, currency, category, summary] = completion.data.choices[0].message.content.split(',');
+      const [amountStr, category, summary] = completion.data.choices[0].message.content.split('|');
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       const catObj = categories.find(cat => cat.value === category);
       const { amount, decimal } = getDecimalValue(amountStr);

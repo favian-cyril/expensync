@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
-import { getDecimalValue, findAllMoneyValues, findHighestCount } from './utils';
+import { getDecimalValue, findAllMoneyValues, findHighestCount } from './utils.mjs';
 
 export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated) {
   const configuration = new Configuration({

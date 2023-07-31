@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { simpleParser } from 'mailparser';
 import { convert } from 'html-to-text';
-import { parseEmailChatgpt, manualParseEmail } from './parsers';
+import { parseEmailChatgpt, manualParseEmail } from './parsers.mjs';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_API_KEY);
 

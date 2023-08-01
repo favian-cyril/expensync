@@ -70,3 +70,23 @@ export function findAllMoneyValues (emailBody, currency) {
   //   }
   // } else return null
 // }
+
+export function currencyCodeToSymbol(currencyCode) {
+  try {
+    const formatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: currencyCode });
+    const parts = formatter.formatToParts(0); // Format zero to get currency symbol
+    let symbol = '';
+
+    for (const part of parts) {
+      if (part.type === 'currency') {
+        symbol = part.value;
+        break;
+      }
+    }
+
+    return symbol;
+  } catch (error) {
+    console.error('Error converting currency code to symbol:', error);
+    return null;
+  }
+}

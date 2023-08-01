@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { simpleParser } from 'mailparser';
 import { convert } from 'html-to-text';
 import { parseEmailChatgpt, manualParseEmail } from './parsers.mjs';
+import { currencyCodeToSymbol } from './utils.mjs';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_API_KEY);
 
@@ -45,10 +46,11 @@ export const handler = async (event) => {
         if (userData.length === 1 && senderData.length === 1) {
             const { data: categories } = await supabase.from('Category').select('id, value').eq('user_id', userData[0].id);
             let invoice;
-            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, userData[0].currency);
+            const currencySymbol = currencyCodeToSymbol(userData[0].currency);
+            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, currencySymbol);
             // Fallback function
             if (invoice === null) {
-              invoice = manualParseEmail(htmlText, userData[0].currency, messageId, date)
+              invoice = manualParseEmail(htmlText, currencySymbol, messageId, date)
             }
             console.log('invoice:', invoice);
             if (invoice) {

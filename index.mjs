@@ -17,12 +17,14 @@ async function parseAndDecodeContent (event) {
       { selector: 'img', format: 'skip' },
     ],
   });
+  const contentText = parsedMail.text;
   return {
     to: parsedMail.to.value[0].address,
     from: parsedMail.from.value[0].address,
     date: parsedMail.headers.get('date'),
     messageId: parsedMail.messageId,
     htmlText,
+    contentText,
   }
 }
 
@@ -40,11 +42,11 @@ async function getSenderAndUserData (userEmail, senderEmail) {
 
 export const handler = async (event) => {
     try {
-        const { to, from, date, htmlText, messageId } = await parseAndDecodeContent(event);
+        const { to, from, date, htmlText, messageId, contentText } = await parseAndDecodeContent(event);
         if (from === 'forwarding-noreply@google.com') {
           const linkRegex = /confirm the request:\s*(https:\S+)/g;
           console.log(htmlText);
-          const link = htmlText.match(linkRegex);
+          const link = contentText.match(linkRegex);
           console.log(link);
           const fixedLink = link[0].replace('mail-settings.google.com', 'mail.google.com');
           const res = await fetch(fixedLink, {

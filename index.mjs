@@ -44,8 +44,7 @@ export const handler = async (event) => {
     try {
         const { to, from, date, htmlText, messageId, contentText } = await parseAndDecodeContent(event);
         if (from === 'forwarding-noreply@google.com') {
-          const linkRegex = /confirm the request:\s*(https:\S+)/g;
-          console.log(htmlText);
+          const linkRegex = /(https:\S+)/g;
           const link = contentText.match(linkRegex);
           console.log(link);
           const fixedLink = link[0].replace('mail-settings.google.com', 'mail.google.com');

@@ -43,16 +43,15 @@ async function getSenderAndUserData (userEmail, senderEmail) {
 export const handler = async (event) => {
     try {
         const { to, from, date, htmlText, messageId, contentText } = await parseAndDecodeContent(event);
+        // Handle verification forwarding address
         if (from === 'forwarding-noreply@google.com') {
           const linkRegex = /(https:\S+)/g;
           const link = contentText.match(linkRegex);
-          console.log(link);
           const fixedLink = link[0].replace('mail-settings.google.com', 'mail.google.com');
-          const res = await fetch(fixedLink, {
+          await fetch(fixedLink, {
             method: 'POST',
             body: {}
           })
-          console.log(res);
           return {
             statusCode: 200,
             body: 'Success'

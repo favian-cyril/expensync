@@ -42,7 +42,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         amount,
         other_amounts,
         currency,
-        category_id: catObj ? catObj?.id : null,
+        category_id: catObj ? catObj?.uuid : null,
         token_size: completion.data.usage.total_tokens,
         parser: 'gpt-3.5-turbo',
         currency_decimal: decimal

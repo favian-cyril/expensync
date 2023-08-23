@@ -32,7 +32,7 @@ async function getSenderAndUserData (userEmail, senderEmail) {
   const [{ data: userData, error: userError }, { data: senderData, error: senderError }]  = await Promise.all([
     supabase.from('User').select('*').eq('email', userEmail),
     supabase.from('SenderEmail')
-      .select('id,email,Category(id)')
+      .select('uuid,email,Category(uuid)')
       .eq('email', senderEmail),
   ]);
   if (userError) return new Error(userError.message);
@@ -60,7 +60,7 @@ export const handler = async (event) => {
         // check for user and sender in db
         const { userData, senderData } = await getSenderAndUserData(to, from);
         if (userData.length === 1 && senderData.length === 1) {
-            const { data: categories } = await supabase.from('Category').select('id, value').eq('user_id', userData[0].id);
+            const { data: categories } = await supabase.from('Category').select('uuid, value').eq('user_id', userData[0].uuid);
             let invoice;
             const currencySymbol = currencyCodeToSymbol(userData[0].currency);
             invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, currencySymbol);
@@ -72,8 +72,8 @@ export const handler = async (event) => {
             if (invoice) {
               const invoiceData = {
                 category_id: senderData[0].category_id || null,
-                user_id: userData[0].id,
-                sender_email_id: senderData[0].id,
+                user_id: userData[0].uuid,
+                sender_email_id: senderData[0].uuid,
                 ...invoice,
               }
               const { error } = await supabase.from('Invoice').insert(invoiceData);

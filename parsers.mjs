@@ -33,7 +33,8 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       const catObj = categories.find(cat => cat.value === category);
       const { amount, decimal } = getDecimalValue(amountStr);
-      const other_amounts = findAllMoneyValues(textHtml, currency).map(i => getDecimalValue(i).amount);
+      const otherValues = findAllMoneyValues(textHtml, currency) || [];
+      const other_amounts = otherValues.map(i => getDecimalValue(i).amount);
       return {
         email_id: emailId,
         email_created: emailCreated,

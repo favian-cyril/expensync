@@ -49,7 +49,7 @@ export function findAllMoneyValues (emailBody, currency) {
     `${currencyLiteral}\\s*([\\d,\\.]+(?:\\.\\d{1,2})?)`,
     'gim',
   );
-  const moneyValues = emailBody.match(regex);
+  const moneyValues = emailBody.match(regex) || [];
   return moneyValues.map(value => value.replace(currency, '').trim())
 }
 

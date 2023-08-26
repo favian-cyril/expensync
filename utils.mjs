@@ -73,7 +73,7 @@ export function findAllMoneyValues (emailBody, currency) {
 
 export function currencyCodeToSymbol(currencyCode) {
   try {
-    const formatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: currencyCode });
+    const formatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: currencyCode, currencyDisplay: 'narrowSymbol' });
     const parts = formatter.formatToParts(0); // Format zero to get currency symbol
     let symbol = '';
 

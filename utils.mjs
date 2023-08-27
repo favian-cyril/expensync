@@ -90,3 +90,9 @@ export function currencyCodeToSymbol(currencyCode) {
     return null;
   }
 }
+
+export function normalizeCurrencyValue(originalDecimal, targetDecimal, value) {
+  if (originalDecimal < targetDecimal) return value * 10 * (targetDecimal - originalDecimal);
+  else if (originalDecimal > targetDecimal) return Math.floor(value / (10 * (originalDecimal - targetDecimal)));
+  else return value;
+}

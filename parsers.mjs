@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
-import { getDecimalValue, findAllMoneyValues, findHighestCount } from './utils.mjs';
+import { getDecimalValue, findAllMoneyValues, findHighestCount, normalizeCurrencyValue } from './utils.mjs';
 
-export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated, currency) {
+export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated, currencySymbol, currencyCode) {
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -30,23 +30,26 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         return null;
       }
       const [amountStr, category, summary] = completion.data.choices[0].message.content.split('|');
+      const currencyRef = await import(`@dinero.js/currencies/${currencyCode}`);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
+      console.log('Currency: ', currencyRef);
       const catObj = categories.find(cat => cat.value === category);
       const { amount, decimal } = getDecimalValue(amountStr);
-      const otherValues = findAllMoneyValues(textHtml, currency) || [];
-      const other_amounts = otherValues.map(i => getDecimalValue(i).amount);
+      const normalizedValue = normalizeCurrencyValue(decimal, currencyRef.exponent, amount)
+      const otherValues = findAllMoneyValues(textHtml, currencySymbol) || [];
+      const other_amounts = otherValues.map(i => normalizeCurrencyValue(decimal, currencyRef.exponent, getDecimalValue(i).amount));
       return {
         email_id: emailId,
         email_created: emailCreated,
         summary,
         email_content: textHtml,
-        amount,
+        amount: normalizedValue,
         other_amounts,
-        currency,
+        currency: currencyCode,
         category_id: catObj ? catObj?.uuid : null,
         token_size: completion.data.usage.total_tokens,
         parser: 'gpt-3.5-turbo',
-        currency_decimal: decimal
+        currency_decimal: currencyRef.exponent
       };
     }
   } catch (e) {
@@ -57,11 +60,12 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
 
 export function manualParseEmail (
   emailBody,
-  currency,
+  currencySymbol,
+  currencyCode,
   emailId,
   emailCreated
 ) {
-  const match = findAllMoneyValues(emailBody, currency);
+  const match = findAllMoneyValues(emailBody, currencySymbol);
   if (match) {
     // Assume all values use the same decimal place
     const decimal = getDecimalValue(match[0]).decimal;
@@ -75,7 +79,7 @@ export function manualParseEmail (
       email_content: emailBody,
       amount: estimatedAmount,
       other_amounts: floatValues,
-      currency,
+      currency: currencyCode,
       currency_decimal: decimal,
     };
   } else {

@@ -62,11 +62,12 @@ export const handler = async (event) => {
         if (userData.length === 1 && senderData.length === 1) {
             const { data: categories } = await supabase.from('Category').select('uuid, value').eq('user_id', userData[0].uuid);
             let invoice;
-            const currencySymbol = currencyCodeToSymbol(userData[0].currency);
-            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, currencySymbol);
+            const currencyCode = userData[0].currency;
+            const currencySymbol = currencyCodeToSymbol(currencyCode);
+            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, currencySymbol, currencyCode);
             // Fallback function
             if (invoice === null) {
-              invoice = manualParseEmail(htmlText, currencySymbol, messageId, date)
+              invoice = manualParseEmail(htmlText, currencySymbol, messageId, date, currencyCode)
             }
             console.log('invoice:', invoice);
             if (invoice) {

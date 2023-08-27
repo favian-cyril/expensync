@@ -31,7 +31,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         return null;
       }
       const [amountStr, category, summary] = completion.data.choices[0].message.content.split('|');
-      const currencyRef = await import(`@dinero.js/currencies/dist/esm/iso4217/amendments/168/${currencyCode}`);
+      const currencyRef = await import(`@dinero.js/currencies/dist/esm/iso4217/amendments/168/${currencyCode.toLowerCase()}`);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       console.log('Currency: ', currencyRef);
       const catObj = categories.find(cat => cat.value === category);

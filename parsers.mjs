@@ -1,5 +1,6 @@
 import { Configuration, OpenAIApi } from 'openai';
 import { getDecimalValue, findAllMoneyValues, findHighestCount, normalizeCurrencyValue } from './utils.mjs';
+import { IDR } from '@dinero.js/currencies'
 
 export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated, currencySymbol, currencyCode) {
   const configuration = new Configuration({
@@ -30,7 +31,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         return null;
       }
       const [amountStr, category, summary] = completion.data.choices[0].message.content.split('|');
-      const currencyRef = await import(`@dinero.js/currencies/${currencyCode}`);
+      const currencyRef = await import(`@dinero.js/currencies/dist/esm/iso4217/amendments/168/${currencyCode}`);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       console.log('Currency: ', currencyRef);
       const catObj = categories.find(cat => cat.value === category);

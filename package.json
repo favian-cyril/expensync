@@ -5,6 +5,5 @@
     "html-to-text": "^9.0.5",
     "mailparser": "^3.6.5",
     "openai": "^3.3.0"
-  },
-  "type": "module"
+  }
 }

@@ -64,7 +64,7 @@ export const handler = async (event) => {
             let invoice;
             const currencyCode = userData[0].currency;
             const currencySymbol = currencyCodeToSymbol(currencyCode);
-            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, currencySymbol, currencyCode);
+            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, currencyCode);
             // Fallback function
             if (invoice === null) {
               invoice = manualParseEmail(htmlText, currencySymbol, messageId, date, currencyCode)

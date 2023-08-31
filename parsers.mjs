@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from 'openai';
 import { getDecimalValue, findAllMoneyValues, findHighestCount, normalizeCurrencyValue } from './utils.mjs';
 import * as currencies from '@dinero.js/currencies'
 
-export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated, currencySymbol, currencyCode) {
+export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated, currencyCode) {
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -17,7 +17,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       messages: [
         {
           "role": "system",
-          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only: Total|Category|Summary. For Category choose from these categories: ${categoryString}. If category is not available use null instead. If the email doesn't seem to be a receipt reply with null instead`
+          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only: Total|Currency Code|Category|Vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead. If the email doesn't seem to be a receipt reply with null only`
         },
       {
         role: "user",
@@ -30,10 +30,9 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         console.error('Not a receipt');
         return null;
       }
-      const [amountStr, category, summary] = completion.data.choices[0].message.content.split('|');
+      const [amountStr, currencySymbol, category, summary] = completion.data.choices[0].message.content.split('|');
       const currencyRef = currencies[currencyCode];
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
-      console.log('Currency: ', currencyRef);
       const catObj = categories.find(cat => cat.value === category);
       const { amount, decimal } = getDecimalValue(amountStr);
       const normalizedValue = normalizeCurrencyValue(decimal, currencyRef.exponent, amount)

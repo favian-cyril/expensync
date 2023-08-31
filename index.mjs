@@ -72,10 +72,10 @@ export const handler = async (event) => {
             console.log('invoice:', invoice);
             if (invoice) {
               const invoiceData = {
-                category_id: senderData[0].category_id || null,
                 user_id: userData[0].uuid,
                 sender_email_id: senderData[0].uuid,
                 ...invoice,
+                category_id: senderData[0].category_id || invoice.category_id || null,
               }
               const { error } = await supabase.from('Invoice').insert(invoiceData);
               if (error) {

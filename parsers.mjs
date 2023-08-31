@@ -30,7 +30,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         console.error('Not a receipt');
         return null;
       }
-      const [amountStr, currencySymbol, category, summary] = completion.data.choices[0].message.content.split('|');
+      const [amountStr, currencySymbol, category, vendor] = completion.data.choices[0].message.content.split('|');
       const currencyRef = currencies[currencyCode];
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       const catObj = categories.find(cat => cat.value === category);
@@ -41,7 +41,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       return {
         email_id: emailId,
         email_created: emailCreated,
-        summary,
+        vendor,
         email_content: textHtml,
         amount: normalizedValue,
         other_amounts,
@@ -75,7 +75,6 @@ export function manualParseEmail (
     return {
       email_id: emailId,
       email_created: emailCreated,
-      summary,
       email_content: emailBody,
       amount: estimatedAmount,
       other_amounts: floatValues,

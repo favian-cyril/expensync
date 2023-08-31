@@ -23,7 +23,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
         role: "user",
         content: strippedText
       }],
-      temperature: 0.2
+      temperature: 0
     });
     if (completion.data.choices.length) {
       if (completion.data.choices[0].message.content.toUpperCase() === 'NULL') {

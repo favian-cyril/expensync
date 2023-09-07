@@ -33,7 +33,7 @@ async function getSenderAndUserData (userEmail, senderEmail) {
     supabase.from('User').select('*').eq('email', userEmail),
     supabase.from('SenderEmail')
       .select('uuid,email,Category(uuid)')
-      .eq('email', senderEmail),
+      .eq('email', senderEmail.toLowerCase()),
   ]);
   if (userError) return new Error(userError.message);
   if (senderError) return new Error(senderError.message);

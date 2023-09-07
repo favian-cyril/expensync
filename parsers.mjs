@@ -71,13 +71,16 @@ export function manualParseEmail (
     const decimal = getDecimalValue(match[0]).decimal;
     const intValues = match.map(i => getDecimalValue(i).amount);
     // Try to get total amount by getting highest count value, and getting the bigger value
+    const currencyRef = currencies[currencyCode];
     const estimatedAmount = findHighestCount(intValues);
+    const normalizedValue = normalizeCurrencyValue(decimal, currencyRef.exponent, estimatedAmount)
+    const other_amounts = intValues.map(i => normalizeCurrencyValue(decimal, currencyRef.exponent, i));
     return {
       email_id: emailId,
       email_created: emailCreated,
       email_content: emailBody,
-      amount: estimatedAmount,
-      other_amounts: floatValues,
+      amount: normalizedValue,
+      other_amounts: other_amounts,
       currency: currencyCode,
       currency_decimal: decimal,
     };

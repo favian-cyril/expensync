@@ -37,6 +37,7 @@ export function getDecimalValue (stringValue) {
 
   const cleanedString = stringValue.replace(separator, '');
   const separatedValues = cleanedString.split(decimalSeparator);
+  console.log(separatedValues);
   if (separatedValues.length === 1) return { amount: parseInt(separatedValues[0]), decimal: 0 };
   else return { amount: parseInt(separatedValues.join()), decimal: separatedValues[1].length };
 }

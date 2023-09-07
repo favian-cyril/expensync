@@ -17,13 +17,13 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       messages: [
         {
           "role": "system",
-          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only: Total|Currency Code|Category|Vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead. If the email doesn't seem to be a receipt reply with null only`
+          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only without heading: Total|Currency Code|Category|Vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead.`
         },
       {
         role: "user",
         content: strippedText
       }],
-      temperature: 0
+      temperature: 0.2
     });
     if (completion.data.choices.length) {
       if (completion.data.choices[0].message.content.toUpperCase() === 'NULL') {

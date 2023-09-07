@@ -70,6 +70,7 @@ export function manualParseEmail (
     // Assume all values use the same decimal place
     const decimal = getDecimalValue(match[0]).decimal;
     const intValues = match.map(i => getDecimalValue(i).amount);
+    console.log(intValues);
     // Try to get total amount by getting highest count value, and getting the bigger value
     const currencyRef = currencies[currencyCode];
     const estimatedAmount = findHighestCount(intValues);

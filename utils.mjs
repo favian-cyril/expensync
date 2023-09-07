@@ -54,22 +54,22 @@ export function findAllMoneyValues (emailBody, currency) {
 }
 
 // Only applies for manual forwarding
-// function getForwardedHeaders (headers) {
-  // const regex = /^---------- Forwarded message ---------\nFrom: (.+)\nDate: (.+)\nSubject: (.+)\nTo: (.+)$/m;
-  // const emailRegex = /<([^>]+)>/;
-  // const match = emailBody.match(regex);
-  // if (match) {
-  //   const [, from, date, subject, to] = match;
-  //   const fromMatch = from.match(emailRegex);
-  //   const toMatch = to.match(emailRegex);
-  //   return {
-  //     from: fromMatch[1],
-  //     date,
-  //     subject,
-  //     to: toMatch[1]
-  //   }
-  // } else return null
-// }
+export function getForwardedHeaders (headers) {
+  const regex = /^---------- Forwarded message ---------\nFrom: (.+)\nDate: (.+)\nSubject: (.+)\nTo: (.+)$/m;
+  const emailRegex = /<([^>]+)>/;
+  const match = emailBody.match(regex);
+  if (match) {
+    const [, from, date, subject, to] = match;
+    const fromMatch = from.match(emailRegex);
+    const toMatch = to.match(emailRegex);
+    return {
+      from: fromMatch[1],
+      date,
+      subject,
+      to: toMatch[1]
+    }
+  } else return null
+}
 
 export function currencyCodeToSymbol(currencyCode) {
   try {

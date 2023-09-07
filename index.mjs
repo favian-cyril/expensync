@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { simpleParser } from 'mailparser';
 import { convert } from 'html-to-text';
 import { parseEmailChatgpt, manualParseEmail } from './parsers.mjs';
-import { currencyCodeToSymbol } from './utils.mjs';
+import { currencyCodeToSymbol, getForwardedHeaders } from './utils.mjs';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_API_KEY);
 
@@ -18,6 +18,17 @@ async function parseAndDecodeContent (event) {
     ],
   });
   const contentText = parsedMail.text;
+  const manualHeaders = getForwardedHeaders(contentText)
+  if (manualHeaders) {
+    return {
+      to: manualHeaders.to,
+      from: manualHeaders.from,
+      date: manualHeaders.date,
+      messageId: parsedMail.messageId,
+      htmlText,
+      contentText,
+    }
+  }
   return {
     to: parsedMail.to.value[0].address,
     from: parsedMail.from.value[0].address,

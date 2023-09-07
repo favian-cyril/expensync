@@ -17,7 +17,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       messages: [
         {
           "role": "system",
-          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only: Total|Currency Code|Category|Vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead. If the email doesn't seem to be a receipt reply with null only`
+          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only: Total|Currency Code|Category|Vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead.`
         },
       {
         role: "user",

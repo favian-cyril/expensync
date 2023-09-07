@@ -82,7 +82,7 @@ export function manualParseEmail (
       amount: normalizedValue,
       other_amounts: other_amounts,
       currency: currencyCode,
-      currency_decimal: decimal,
+      currency_decimal: currencyRef.exponent,
     };
   } else {
     return null;

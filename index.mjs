@@ -18,7 +18,7 @@ async function parseAndDecodeContent (event) {
     ],
   });
   const contentText = parsedMail.text;
-  console.log(parsedMail);
+  console.log(parsedMail.to, parsedMail.from);
   return {
     to: parsedMail.to.value[0].address,
     from: parsedMail.from.value[0].address,

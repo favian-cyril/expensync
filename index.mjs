@@ -30,7 +30,7 @@ async function parseAndDecodeContent (event) {
 
 async function getSenderAndUserData (userEmail, senderEmail) {
   const [{ data: userData, error: userError }, { data: senderData, error: senderError }]  = await Promise.all([
-    supabase.from('User').select('*').eq('email', userEmail),
+    supabase.from('User').select('*').eq('email', userEmail.toLowerCase()),
     supabase.from('SenderEmail')
       .select('uuid,email,Category(uuid)')
       .eq('email', senderEmail.toLowerCase()),

@@ -54,7 +54,7 @@ export function findAllMoneyValues (emailBody, currency) {
 }
 
 // Only applies for manual forwarding
-export function getForwardedHeaders (headers) {
+export function getForwardedHeaders (emailBody) {
   const regex = /^---------- Forwarded message ---------\nFrom: (.+)\nDate: (.+)\nSubject: (.+)\nTo: (.+)$/m;
   const emailRegex = /<([^>]+)>/;
   const match = emailBody.match(regex);

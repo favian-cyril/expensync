@@ -30,10 +30,10 @@ async function parseAndDecodeContent (event) {
 
 async function getSenderAndUserData (userEmail, senderEmail) {
   const [{ data: userData, error: userError }, { data: senderData, error: senderError }]  = await Promise.all([
-    supabase.from('User').select('*').eq('email', userEmail.toLowerCase()),
+    supabase.from('User').select('*').ilike('email', userEmail),
     supabase.from('SenderEmail')
       .select('uuid,email,Category(uuid)')
-      .eq('email', senderEmail.toLowerCase()),
+      .ilike('email', senderEmail),
   ]);
   if (userError) return new Error(userError.message);
   if (senderError) return new Error(senderError.message);

@@ -18,7 +18,7 @@ async function parseAndDecodeContent (event) {
     ],
   });
   const contentText = parsedMail.text;
-  const manualHeaders = getForwardedHeaders(contentText)
+  const manualHeaders = getForwardedHeaders(htmlText)
   if (manualHeaders) {
     return {
       to: manualHeaders.to,

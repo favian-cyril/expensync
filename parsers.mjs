@@ -37,7 +37,11 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       const { amount, decimal } = getDecimalValue(amountStr);
       const normalizedValue = normalizeCurrencyValue(decimal, currencyRef.exponent, amount)
       const otherValues = findAllMoneyValues(textHtml, currencySymbol) || [];
-      const other_amounts = otherValues.map(i => normalizeCurrencyValue(decimal, currencyRef.exponent, getDecimalValue(i).amount));
+      function normalizeValues (val) {
+        const decimalVal = getDecimalValue(val);
+        normalizeCurrencyValue(decimalVal.decimal, currencyRef.exponent, decimalVal.amount)
+      }
+      const other_amounts = otherValues.map(normalizeValues);
       return {
         email_id: emailId,
         email_created: emailCreated,

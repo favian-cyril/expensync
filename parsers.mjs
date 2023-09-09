@@ -26,17 +26,15 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       temperature: 0.2
     });
     if (completion.data.choices.length) {
-      if (completion.data.choices[0].message.content.toUpperCase() === 'NULL') {
-        console.error('Not a receipt');
-        return null;
-      }
       const [amountStr, currencySymbol, category, vendor] = completion.data.choices[0].message.content.split('|');
-      const currencyRef = currencies[currencyCode];
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
-      const catObj = categories.find(cat => cat.value === category);
+      if (parseInt(amountStr) === NaN) throw new Error('Amount is null');
+      // TODO: Change when db returns the currency object
+      const currencyRef = currencies[currencyCode];
+      const catObj = categories.find(cat => cat.value.toUpperCase() === category.toUpperCase());
       const { amount, decimal } = getDecimalValue(amountStr);
       const normalizedValue = normalizeCurrencyValue(decimal, currencyRef.exponent, amount)
-      const otherValues = findAllMoneyValues(textHtml, currencySymbol) || [];
+      const otherValues = findAllMoneyValues(textHtml, currencySymbol);
       function normalizeValues (val) {
         const decimalVal = getDecimalValue(val);
         normalizeCurrencyValue(decimalVal.decimal, currencyRef.exponent, decimalVal.amount)

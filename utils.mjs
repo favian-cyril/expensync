@@ -87,7 +87,7 @@ export function currencyCodeToSymbol(currencyCode) {
     return symbol;
   } catch (error) {
     console.error('Error converting currency code to symbol:', error);
-    return null;
+    throw new Error('currencyCodeToSymbol Error');
   }
 }
 

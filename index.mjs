@@ -40,14 +40,14 @@ async function parseAndDecodeContent (event) {
 }
 
 async function getSenderAndUserData (userEmail, senderEmail) {
-  const [{ data: userData, error: userError }, { data: senderData, error: senderError }]  = await Promise.all([
-    supabase.from('User').select('*').ilike('email', userEmail),
-    supabase.from('SenderEmail')
+  const { data: userData, error: userError }  = await supabase.from('User').select('*').ilike('email', userEmail).limit(1);
+  const { data: senderData, error: senderError } = await supabase.from('SenderEmail')
       .select('uuid,email,Category(uuid)')
-      .ilike('email', senderEmail),
-  ]);
-  if (userError) return new Error(userError.message);
-  if (senderError) return new Error(senderError.message);
+      .eq('user_id', userData[0].uuid)
+      .limit(1)
+      .ilike('email', senderEmail);
+  if (userError) throw new Error(userError.message);
+  if (senderError) throw new Error(senderError.message);
   return { userData, senderData };
 }
 
@@ -91,10 +91,7 @@ export const handler = async (event) => {
               const { error } = await supabase.from('Invoice').insert(invoiceData);
               if (error) {
                 console.error('An error occurred:', error);
-                return {
-                    statusCode: 500,
-                    body: JSON.stringify('An error occurred while processing the email.'),
-                };
+                throw new Error('Cannot save invoice')
               }
             }
             return {

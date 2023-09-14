@@ -17,8 +17,6 @@ async function parseAndDecodeContent (event) {
       { selector: 'img', format: 'skip' },
     ],
   });
-  const offset = new Date(parsedMail.headers.get('date')).getTimezoneOffset();
-  console.log(parsedMail.headers.get('date'));
   const contentText = parsedMail.text;
   const manualHeaders = getForwardedHeaders(htmlText)
   if (manualHeaders) {
@@ -29,7 +27,6 @@ async function parseAndDecodeContent (event) {
       messageId: parsedMail.messageId,
       htmlText,
       contentText,
-      offset,
     }
   }
   return {
@@ -79,7 +76,7 @@ export const handler = async (event) => {
             const currency = userData[0].currency_object ? JSON.parse(userData[0].currency_object) : null;
             if (currency === null) throw new Error('Currency object not found');
             const currencySymbol = currencyCodeToSymbol(currency.code);
-            invoice = await parseEmailChatgpt({ categories, textHtml: htmlText, emailId: messageId, emailCreated: date, currency, offset });
+            invoice = await parseEmailChatgpt({ categories, textHtml: htmlText, emailId: messageId, emailCreated: date, currency });
             // Fallback function
             if (invoice === null) {
               invoice = manualParseEmail({ emailBody: htmlText, currencySymbol: currencySymbol, currencyCode: currency.code, emailId: messageId, emailCreated: date, currency })

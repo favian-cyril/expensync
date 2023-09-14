@@ -28,7 +28,6 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
       const regex = /:\s+([^\n\r]+)/gm
       const [amountStr, currencySymbol, datetime, category, vendor] = [...completion.data.choices[0].message.content.matchAll(regex)].map(res => res[1]);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
-      console.log('Offset: ',offset);
       if (amountStr === 'null') throw new Error('Amount is null');
       const catObj = categories.find(cat => cat.value.toUpperCase() === category.toUpperCase());
       const { amount, decimal } = getDecimalValueWithCurrency(amountStr);
@@ -38,16 +37,11 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
         const decimalVal = getDecimalValue(val);
         return normalizeCurrencyValue(decimalVal.decimal, currency.exponent, decimalVal.amount)
       }
-      let timezone;
-      if (timezone === 0) timezone = '+0000'
-      else if (offset > 0) timezone = `+0${offset / 60}00`
-      else timezone = `-0${offset / 60}00`
-      const email_created = new Date(emailCreated) === 'Invalid Date' ? new Date(datetime + ' ' + timezone) : new Date(emailCreated)
-      console.log(email_created);
+
       const other_amounts = otherValues.map(normalizeValues);
       return {
         email_id: emailId,
-        email_created,
+        email_created: datetime,
         vendor,
         email_content: textHtml,
         amount: normalizedValue,

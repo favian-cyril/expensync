@@ -18,6 +18,7 @@ async function parseAndDecodeContent (event) {
     ],
   });
   const offset = new Date(parsedMail.headers.get('date')).getTimezoneOffset();
+  console.log(parsedMail.headers.get('date'));
   const contentText = parsedMail.text;
   const manualHeaders = getForwardedHeaders(htmlText)
   if (manualHeaders) {

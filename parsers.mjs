@@ -43,6 +43,7 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
       else if (offset > 0) timezone = `+0${offset / 60}00`
       else timezone = `-0${offset / 60}00`
       const email_created = new Date(emailCreated) === 'Invalid Date' ? new Date(datetime + ' ' + timezone) : new Date(emailCreated)
+      console.log(email_created);
       const other_amounts = otherValues.map(normalizeValues);
       return {
         email_id: emailId,

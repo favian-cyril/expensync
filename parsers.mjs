@@ -26,7 +26,7 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
     });
     if (completion.data.choices.length) {
       const regex = /:\s+([^\n\r]+)/gm
-      const [amountStr, currencySymbol, datetime, category, vendor] = completion.data.choices[0].message.content.match(regex);
+      const [amountStr, currencySymbol, datetime, category, vendor] = [...completion.data.choices[0].message.content.matchAll(regex)].map(res => res[1]);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       if (amountStr === 'null') throw new Error('Amount is null');
       console.log(amountStr, currencySymbol, datetime, category, vendor);

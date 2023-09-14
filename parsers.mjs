@@ -53,7 +53,7 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
         category_id: catObj ? catObj?.uuid : null,
         token_size: completion.data.usage.total_tokens,
         parser: 'gpt-3.5-turbo',
-        currency_decimal: currencyRef.exponent
+        currency_decimal: currency.exponent
       };
     }
   } catch (e) {

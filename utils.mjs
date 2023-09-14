@@ -42,7 +42,7 @@ export function getDecimalValue (stringValue) {
 }
 
 export function getDecimalValueWithCurrency (stringValue) {
-  const withoutCurrencyRegex = /([\d+\.,])/g
+  const withoutCurrencyRegex = /[\d\.,]+/g
   const decimalString = stringValue.match(withoutCurrencyRegex)[0];
   // Decimal separator should be reverse of thousands separator
   const separator = isDotSeparated(decimalString) ? '.' : ',';

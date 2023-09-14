@@ -1,8 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
 import { getDecimalValue, findAllMoneyValues, findHighestCount, normalizeCurrencyValue } from './utils.mjs';
-import * as currencies from '@dinero.js/currencies'
 
-export async function parseEmailChatgpt (categories, textHtml, emailId, emailCreated, currencyCode) {
+export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailCreated, currency, offset }) {
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -17,7 +16,7 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       messages: [
         {
           "role": "system",
-          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation in this format only without heading: Total|Currency Code|Category|Vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead.`
+          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation the total amount,currency,datetime paid,category,vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead.`
         },
       {
         role: "user",
@@ -26,28 +25,31 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
       temperature: 0.2
     });
     if (completion.data.choices.length) {
-      const [amountStr, currencySymbol, category, vendor] = completion.data.choices[0].message.content.split('|');
+      const [amountStr, currencySymbol, datetime, category, vendor] = completion.data.choices[0].message.content.split('\n').map(splitItem => splitItem.split(' ')[1]);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       if (parseInt(amountStr) === NaN) throw new Error('Amount is null');
-      // TODO: Change when db returns the currency object
-      const currencyRef = currencies[currencyCode];
       const catObj = categories.find(cat => cat.value.toUpperCase() === category.toUpperCase());
       const { amount, decimal } = getDecimalValue(amountStr);
-      const normalizedValue = normalizeCurrencyValue(decimal, currencyRef.exponent, amount)
+      const normalizedValue = normalizeCurrencyValue(decimal, currency.exponent, amount)
       const otherValues = findAllMoneyValues(textHtml, currencySymbol);
       function normalizeValues (val) {
         const decimalVal = getDecimalValue(val);
-        return normalizeCurrencyValue(decimalVal.decimal, currencyRef.exponent, decimalVal.amount)
+        return normalizeCurrencyValue(decimalVal.decimal, currency.exponent, decimalVal.amount)
       }
+      let timezone;
+      if (timezone === 0) timezone = '+0000'
+      else if (offset > 0) timezone = `+0${offset / 60}00`
+      else timezone = `-0${offset / 60}00`
+      const email_created = new Date(emailCreated) === 'Invalid Date' ? new Date(datetime + ' ' + timezone) : new Date(emailCreated)
       const other_amounts = otherValues.map(normalizeValues);
       return {
         email_id: emailId,
-        email_created: emailCreated,
+        email_created,
         vendor,
         email_content: textHtml,
         amount: normalizedValue,
         other_amounts,
-        currency: currencyCode,
+        currency: currency.code,
         category_id: catObj ? catObj?.uuid : null,
         token_size: completion.data.usage.total_tokens,
         parser: 'gpt-3.5-turbo',
@@ -60,13 +62,13 @@ export async function parseEmailChatgpt (categories, textHtml, emailId, emailCre
   }
 }
 
-export function manualParseEmail (
+export function manualParseEmail ({
   emailBody,
   currencySymbol,
   currencyCode,
   emailId,
   emailCreated
-) {
+}) {
   const match = findAllMoneyValues(emailBody, currencySymbol);
   if (match) {
     // Assume all values use the same decimal place

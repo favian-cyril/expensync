@@ -17,6 +17,7 @@ async function parseAndDecodeContent (event) {
       { selector: 'img', format: 'skip' },
     ],
   });
+  const offset = new Date(parsedMail.headers.get('date')).getTimezoneOffset();
   const contentText = parsedMail.text;
   const manualHeaders = getForwardedHeaders(htmlText)
   if (manualHeaders) {
@@ -27,6 +28,7 @@ async function parseAndDecodeContent (event) {
       messageId: parsedMail.messageId,
       htmlText,
       contentText,
+      offset,
     }
   }
   return {
@@ -53,7 +55,7 @@ async function getSenderAndUserData (userEmail, senderEmail) {
 
 export const handler = async (event) => {
     try {
-        const { to, from, date, htmlText, messageId, contentText } = await parseAndDecodeContent(event);
+        const { to, from, date, htmlText, messageId, contentText, offset } = await parseAndDecodeContent(event);
         // Handle verification forwarding address
         if (from === 'forwarding-noreply@google.com') {
           const linkRegex = /(https:\S+)/g;
@@ -73,14 +75,14 @@ export const handler = async (event) => {
         if (userData.length === 1 && senderData.length === 1) {
             const { data: categories } = await supabase.from('Category').select('uuid, value').eq('user_id', userData[0].uuid);
             let invoice;
-            const currencyCode = userData[0].currency;
-            const currencySymbol = currencyCodeToSymbol(currencyCode);
-            invoice = await parseEmailChatgpt(categories, htmlText, messageId, date, currencyCode);
+            const currency = userData[0].currency_object ? JSON.parse(userData[0].currency_object) : null;
+            if (currency === null) throw new Error('Currency object not found');
+            const currencySymbol = currencyCodeToSymbol(currency.code);
+            invoice = await parseEmailChatgpt({ categories, textHtml: htmlText, emailId: messageId, emailCreated: date, currency, offset });
             // Fallback function
             if (invoice === null) {
-              invoice = manualParseEmail(htmlText, currencySymbol, currencyCode, messageId, date)
+              invoice = manualParseEmail({ emailBody: htmlText, currencySymbol: currencySymbol, currencyCode: currency.code, emailId: messageId, emailCreated: date })
             }
-            console.log('invoice:', invoice);
             if (invoice) {
               const invoiceData = {
                 user_id: userData[0].uuid,

@@ -25,11 +25,11 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
       temperature: 0.2
     });
     if (completion.data.choices.length) {
-      const regex = /[^\n\r]:\s+([^\n\r]+)/gm
+      const regex = /:\s+([^\n\r]+)/gm
       const [amountStr, currencySymbol, datetime, category, vendor] = completion.data.choices[0].message.content.match(regex);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       if (amountStr === 'null') throw new Error('Amount is null');
-      console.log(amountStr);
+      console.log(amountStr, currencySymbol, datetime, category, vendor);
       const catObj = categories.find(cat => cat.value.toUpperCase() === category.toUpperCase());
       const { amount, decimal } = getDecimalValueWithCurrency(amountStr);
       const normalizedValue = normalizeCurrencyValue(decimal, currency.exponent, amount)

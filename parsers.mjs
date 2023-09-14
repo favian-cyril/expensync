@@ -25,7 +25,8 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
       temperature: 0.2
     });
     if (completion.data.choices.length) {
-      const [amountStr, currencySymbol, datetime, category, vendor] = completion.data.choices[0].message.content.split('\n').map(splitItem => splitItem.split(' ')[1]);
+      const regex = /[^\n\r]:\s+([^\n\r]+)/gm
+      const [amountStr, currencySymbol, datetime, category, vendor] = completion.data.choices[0].message.content.findAll(regex);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
       if (parseInt(amountStr) === NaN) throw new Error('Amount is null');
       const catObj = categories.find(cat => cat.value.toUpperCase() === category.toUpperCase());

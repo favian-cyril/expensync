@@ -81,7 +81,7 @@ export const handler = async (event) => {
             invoice = await parseEmailChatgpt({ categories, textHtml: htmlText, emailId: messageId, emailCreated: date, currency, offset });
             // Fallback function
             if (invoice === null) {
-              invoice = manualParseEmail({ emailBody: htmlText, currencySymbol: currencySymbol, currencyCode: currency.code, emailId: messageId, emailCreated: date })
+              invoice = manualParseEmail({ emailBody: htmlText, currencySymbol: currencySymbol, currencyCode: currency.code, emailId: messageId, emailCreated: date, currency })
             }
             if (invoice) {
               const invoiceData = {

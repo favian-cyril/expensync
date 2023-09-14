@@ -67,7 +67,8 @@ export function manualParseEmail ({
   currencySymbol,
   currencyCode,
   emailId,
-  emailCreated
+  emailCreated,
+  currency,
 }) {
   const match = findAllMoneyValues(emailBody, currencySymbol);
   if (match) {
@@ -75,10 +76,9 @@ export function manualParseEmail ({
     const decimal = getDecimalValue(match[0]).decimal;
     const intValues = match.map(i => getDecimalValue(i).amount);
     // Try to get total amount by getting highest count value, and getting the bigger value
-    const currencyRef = currencies[currencyCode];
     const estimatedAmount = findHighestCount(intValues);
-    const normalizedValue = normalizeCurrencyValue(decimal, currencyRef.exponent, estimatedAmount)
-    const other_amounts = intValues.map(i => normalizeCurrencyValue(decimal, currencyRef.exponent, i));
+    const normalizedValue = normalizeCurrencyValue(decimal, currency.exponent, estimatedAmount)
+    const other_amounts = intValues.map(i => normalizeCurrencyValue(decimal, currency.exponent, i));
     return {
       email_id: emailId,
       email_created: emailCreated,
@@ -86,7 +86,7 @@ export function manualParseEmail ({
       amount: normalizedValue,
       other_amounts: other_amounts,
       currency: currencyCode,
-      currency_decimal: currencyRef.exponent,
+      currency_decimal: currency.exponent,
     };
   } else {
     return null;

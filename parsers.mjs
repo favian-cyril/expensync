@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
-import { getDecimalValue, findAllMoneyValues, findHighestCount, normalizeCurrencyValue } from './utils.mjs';
+import { getDecimalValue, findAllMoneyValues, findHighestCount, normalizeCurrencyValue, getDecimalValueWithCurrency } from './utils.mjs';
 
 export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailCreated, currency, offset }) {
   const configuration = new Configuration({
@@ -28,9 +28,10 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
       const regex = /[^\n\r]:\s+([^\n\r]+)/gm
       const [amountStr, currencySymbol, datetime, category, vendor] = completion.data.choices[0].message.content.match(regex);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
-      if (parseInt(amountStr) === NaN) throw new Error('Amount is null');
+      if (amountStr === 'null') throw new Error('Amount is null');
+      console.log(amountStr);
       const catObj = categories.find(cat => cat.value.toUpperCase() === category.toUpperCase());
-      const { amount, decimal } = getDecimalValue(amountStr);
+      const { amount, decimal } = getDecimalValueWithCurrency(amountStr);
       const normalizedValue = normalizeCurrencyValue(decimal, currency.exponent, amount)
       const otherValues = findAllMoneyValues(textHtml, currencySymbol);
       function normalizeValues (val) {

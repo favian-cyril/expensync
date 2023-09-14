@@ -41,6 +41,19 @@ export function getDecimalValue (stringValue) {
   else return { amount: parseInt(separatedValues.join('')), decimal: separatedValues[1].length };
 }
 
+export function getDecimalValueWithCurrency (stringValue) {
+  const withoutCurrencyRegex = /([\d+\.,])/g
+  const decimalString = stringValue.match(withoutCurrencyRegex)[0];
+  // Decimal separator should be reverse of thousands separator
+  const separator = isDotSeparated(decimalString) ? '.' : ',';
+  const decimalSeparator = isDotSeparated(decimalString) ? ',' : '.';
+
+  const cleanedString = decimalString.replace(separator, '');
+  const separatedValues = cleanedString.split(decimalSeparator);
+  if (separatedValues.length === 1) return { amount: parseInt(separatedValues[0]), decimal: 0 };
+  else return { amount: parseInt(separatedValues.join('')), decimal: separatedValues[1].length };
+}
+
 export function findAllMoneyValues (emailBody, currency) {
   // Only checks for $ because it is a regex expression
   const currencyLiteral = currency === '$' ? '\\' + currency : currency;

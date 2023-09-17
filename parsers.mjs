@@ -37,7 +37,7 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
         const decimalVal = getDecimalValue(val);
         return normalizeCurrencyValue(decimalVal.decimal, currency.exponent, decimalVal.amount)
       }
-      const email_created = new Date(emailCreated) === 'Invalid Date' ? datetime : email_created;
+      const email_created = new Date(emailCreated) === 'Invalid Date' ? datetime : emailCreated;
       const other_amounts = otherValues.map(normalizeValues);
       return {
         email_id: emailId,

@@ -76,10 +76,10 @@ export const handler = async (event) => {
             const currency = userData[0].currency_object ? JSON.parse(userData[0].currency_object) : null;
             if (currency === null) throw new Error('Currency object not found');
             const currencySymbol = currencyCodeToSymbol(currency.code);
-            invoice = await parseEmailChatgpt({ categories, textHtml: htmlText, emailId: messageId, emailCreated: date, currency });
+            invoice = await parseEmailChatgpt({ categories, textHtml: htmlText, emailId: messageId, emailCreated: date, currency, saveEmail: userData[0].save_email_content });
             // Fallback function
             if (invoice === null) {
-              invoice = manualParseEmail({ emailBody: htmlText, currencySymbol: currencySymbol, currencyCode: currency.code, emailId: messageId, emailCreated: date, currency })
+              invoice = manualParseEmail({ emailBody: htmlText, currencySymbol: currencySymbol, currencyCode: currency.code, emailId: messageId, emailCreated: date, currency, saveEmail: userData[0].save_email_content })
             }
             if (invoice) {
               const invoiceData = {

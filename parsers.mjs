@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
 import { getDecimalValue, findAllMoneyValues, findHighestCount, normalizeCurrencyValue, getDecimalValueWithCurrency } from './utils.mjs';
 
-export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailCreated, currency }) {
+export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailCreated, currency, saveEmail = true }) {
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -16,7 +16,7 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
       messages: [
         {
           "role": "system",
-          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation the total amount,currency code,datetime paid,category,vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead. datetime should be in iso format`
+          "content": `You are tasked with classifying and summarizing receipts from emails, reply without explanation the total amount,currency code,datetime paid,category,vendor. For Category choose from these categories: ${categoryString}. If category is not available use null instead. datetime should be in iso format. If the content isn't a transaction reply with null`
         },
       {
         role: "user",
@@ -26,8 +26,9 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
     });
     if (completion.data.choices.length) {
       const regex = /:\s+([^\n\r]+)/gm
-      const [amountStr, currencySymbol, datetime, category, vendor] = [...completion.data.choices[0].message.content.matchAll(regex)].map(res => res[1]);
       console.log('ChatGPT response: ', completion.data.choices[0].message.content);
+      if (completion.data.choices[0].message.content === 'null') throw new Error('Email isnt a transaction');
+      const [amountStr, currencySymbol, datetime, category, vendor] = [...completion.data.choices[0].message.content.matchAll(regex)].map(res => res[1]);
       if (amountStr === 'null') throw new Error('Amount is null');
       const catObj = categories.find(cat => cat.value.toUpperCase() === category.toUpperCase());
       const { amount, decimal } = getDecimalValueWithCurrency(amountStr);
@@ -43,7 +44,7 @@ export async function parseEmailChatgpt ({ categories, textHtml, emailId, emailC
         email_id: emailId,
         email_created,
         vendor,
-        email_content: textHtml,
+        email_content: saveEmail ? textHtml : null,
         amount: normalizedValue,
         other_amounts,
         currency: currency.code,
@@ -66,6 +67,7 @@ export function manualParseEmail ({
   emailId,
   emailCreated,
   currency,
+  saveEmail = true,
 }) {
   const match = findAllMoneyValues(emailBody, currencySymbol);
   if (match) {
@@ -79,7 +81,7 @@ export function manualParseEmail ({
     return {
       email_id: emailId,
       email_created: emailCreated,
-      email_content: emailBody,
+      email_content: saveEmail ? emailBody : null,
       amount: normalizedValue,
       other_amounts: other_amounts,
       currency: currencyCode,
